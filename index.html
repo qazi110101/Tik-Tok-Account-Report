@@ -1,0 +1,355 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TikTok Account Reports Tool</title>
+    <style>
+        body {
+            font-family: 'Orbitron', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #0d0d1a;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            overflow-x: hidden;
+            overflow-y: auto; /* Enable vertical scrolling */
+            -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+        }
+        /* Neon Background with Particles */
+        .background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #ff00ff, #00ccff);
+            opacity: 0.1;
+            z-index: -1;
+            pointer-events: none;
+        }
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+        .container {
+            max-width: 90%;
+            width: 900px;
+            margin: 20px auto;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            border: 2px solid #ff00ff;
+            border-radius: 15px;
+            box-shadow: 0 0 20px #00ccff;
+            z-index: 1;
+            box-sizing: border-box;
+        }
+        /* Animated Header */
+        header {
+            text-align: center;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.5);
+            border-bottom: 2px solid #00ccff;
+        }
+        .header-text {
+            font-size: 1.8rem;
+            font-weight: bold;
+            background: linear-gradient(45deg, #ff00ff, #00ccff);
+            -webkit-background-clip: text;
+            color: transparent;
+            animation: neonGlow 1.5s ease-in-out infinite alternate;
+        }
+        @keyframes neonGlow {
+            from { text-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff; }
+            to { text-shadow: 0 0 20px #00ccff, 0 0 30px #00ccff; }
+        }
+        h1 {
+            text-align: center;
+            font-size: 2rem;
+            background: linear-gradient(45deg, #ff00ff, #00ccff);
+            -webkit-background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 15px #ff00ff;
+            margin-bottom: 10px;
+        }
+        .form-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        input[type="text"], input[type="number"] {
+            padding: 12px;
+            width: 100%;
+            max-width: 300px;
+            margin: 10px 0;
+            border: 2px solid #00ccff;
+            border-radius: 8px;
+            background: rgba(0, 0, 0, 0.5);
+            color: #fff;
+            font-size: 1rem;
+            box-sizing: border-box;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        input:focus {
+            border-color: #ff00ff;
+            box-shadow: 0 0 10px #ff00ff;
+            outline: none;
+        }
+        input::placeholder {
+            color: #aaa;
+        }
+        button {
+            padding: 12px 30px;
+            background: linear-gradient(45deg, #ff00ff, #00ccff);
+            color: #fff;
+            border: none;
+            border-radius: 20px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            animation: pulseButton 2s infinite;
+        }
+        button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px #ff00ff;
+        }
+        @keyframes pulseButton {
+            0% { box-shadow: 0 0 0 0 rgba(255, 0, 255, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(255, 0, 255, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 0, 255, 0); }
+        }
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+        }
+        .loader {
+            width: 60px;
+            height: 60px;
+            border: 8px solid #00ccff;
+            border-top: 8px solid #ff00ff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite, glowLoader 1.5s ease-in-out infinite alternate;
+            position: relative;
+        }
+        .loader::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 80px;
+            height: 80px;
+            background: radial-gradient(circle, rgba(255, 0, 255, 0.3), transparent);
+            transform: translate(-50%, -50%);
+            animation: pulseLoader 2s infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        @keyframes glowLoader {
+            from { box-shadow: 0 0 15px #ff00ff; }
+            to { box-shadow: 0 0 20px #00ccff; }
+        }
+        @keyframes pulseLoader {
+            0% { transform: translate(-50%, -50%) scale(1); opacity: 0.5; }
+            100% { transform: translate(-50%, -50%) scale(1.5); opacity: 0; }
+        }
+        .message {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 1.2rem;
+            opacity: 0;
+            background: linear-gradient(45deg, #ff00ff, #00ccff);
+            -webkit-background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 10px #ff00ff;
+            transition: opacity 0.5s;
+        }
+        .success {
+            animation: slideIn 1s ease-in-out forwards;
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* Animated Footer */
+        footer {
+            text-align: center;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            border-top: 2px solid #ff00ff;
+            margin-top: auto;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        footer p {
+            margin: 5px 0;
+            font-size: 1rem;
+            background: linear-gradient(45deg, #ff00ff, #00ccff);
+            -webkit-background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 8px #ff00ff;
+        }
+        .social-buttons {
+            margin-top: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+        }
+        .social-button {
+            display: inline-block;
+            padding: 10px 20px;
+            border-radius: 20px;
+            color: #fff;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .whatsapp {
+            background: #25D366;
+            animation: pulseSocial 2s infinite;
+        }
+        .telegram {
+            background: #0088cc;
+            animation: pulseSocial 2s infinite 0.5s;
+        }
+        .social-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 12px #ff00ff;
+        }
+        @keyframes pulseSocial {
+            0% { box-shadow: 0 0 0 0 rgba(255, 0, 255, 0.7); }
+            70% { box-shadow: 0 0 0 8px rgba(255, 0, 255, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 0, 255, 0); }
+        }
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                padding: 15px;
+            }
+            .header-text {
+                font-size: 1.5rem;
+            }
+            h1 {
+                font-size: 1.6rem;
+            }
+            input[type="text"], input[type="number"] {
+                max-width: 100%;
+                font-size: 0.9rem;
+                padding: 10px;
+            }
+            button {
+                font-size: 1rem;
+                padding: 10px 25px;
+            }
+            .message {
+                font-size: 1rem;
+            }
+            footer p {
+                font-size: 0.9rem;
+            }
+            .social-button {
+                font-size: 0.8rem;
+                padding: 8px 15px;
+            }
+            .loader {
+                width: 50px;
+                height: 50px;
+                border: 6px solid #00ccff;
+                border-top: 6px solid #ff00ff;
+            }
+            .loader::before {
+                width: 70px;
+                height: 70px;
+            }
+        }
+        @media (max-width: 480px) {
+            .header-text {
+                font-size: 1.2rem;
+            }
+            h1 {
+                font-size: 1.4rem;
+            }
+            .social-buttons {
+                flex-direction: column;
+                gap: 8px;
+            }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="background"></div>
+    <div class="particles" id="particles"></div>
+
+    <!-- Animated Header -->
+    <header>
+        <div class="header-text">Developed by QAZI</div>
+    </header>
+
+    <div class="container">
+        <h1>TikTok Account Reports Tool</h1>
+        <p>Enter a TikTok username or link and quantity to generate reports.</p>
+        
+        <!-- Form for username and quantity -->
+                    <div class="form-container">
+                <form method="POST">
+                    <input type="text" name="username" placeholder="Enter TikTok username or link" required>
+                    <input type="number" name="quantity" placeholder="Quantity (10-10000)" min="10" max="10000" required>
+                    <button type="submit">Send Reports</button>
+                </form>
+            </div>
+            </div>
+
+    <!-- Animated Footer -->
+    <footer>
+        <p>© 2025 CyberGuru Innovations, All Rights Reserved</p>
+        <div class="social-buttons">
+            <a href="https://whatsapp.com/channel/0029ValH0yv6GcG8pM6AN432" class="social-button whatsapp" target="_blank">Join our WhatsApp Channel</a>
+            <a href="https://t.me/shadowinnovations" class="social-button telegram" target="_blank">Join our Telegram Channel</a>
+        </div>
+    </footer>
+
+    <!-- JavaScript for Animated Message and Particles -->
+        <script>
+        // Particle Animation (Reduced for Mobile Performance)
+        const particlesContainer = document.getElementById('particles');
+        const isMobile = window.innerWidth <= 768;
+        const particleCount = isMobile ? 20 : 50; // Fewer particles on mobile
+        for (let i = 0; i < particleCount; i++) {
+            const particle = document.createElement('div');
+            particle.style.position = 'absolute';
+            particle.style.width = '4px';
+            particle.style.height = '4px';
+            particle.style.background = i % 2 ? '#ff00ff' : '#00ccff';
+            particle.style.borderRadius = '50%';
+            particle.style.opacity = Math.random();
+            particle.style.left = Math.random() * 100 + 'vw';
+            particle.style.top = Math.random() * 100 + 'vh';
+            particle.style.animation = `float ${5 + Math.random() * 10}s linear infinite`;
+            particlesContainer.appendChild(particle);
+        }
+    </script>
+    <style>
+        @keyframes float {
+            0% { transform: translateY(0) translateX(0); opacity: 0.5; }
+            50% { opacity: 1; }
+            100% { transform: translateY(-100vh) translateX(${Math.random() * 100 - 50}px); opacity: 0.5; }
+        }
+    </style>
+</body>
+</html>
